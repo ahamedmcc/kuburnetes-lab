@@ -1,0 +1,31 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+   name: webserver
+spec:
+   replicas: 2
+   selector:      # tells the controller which pods to watch/belong to
+    matchLabels:
+     name: webserver-svc
+   template:
+     metadata:
+       name: webserver
+       labels:
+         name: webserver-svc
+     spec:
+      containers:
+        - name: cw
+          image: httpd
+          #command: ["/bin/bash", "-c", "rm -f /usr/local/apache2/icons/f.png"] # not working 
+          ports:
+          - containerPort: 80
+          volumeMounts:
+            - name: dnetwebmap
+              mountPath: "/usr/local/apache2/htdocs"
+      volumes:
+        - name: dnetwebmap
+          configMap:
+             name: dnetweb   # this should match the config map name created in the first step
+             items:
+               - key: index.html
+                 path: index.html
